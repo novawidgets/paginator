@@ -1,0 +1,169 @@
+<template is="dom-module">
+    <style>
+        :host[default-style] a {
+            display: block;
+            color: #212121;
+            text-decoration: none;
+            display: inline-block;
+            min-width: 28px;
+            line-height: 1.7;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        :host[default-style] a:not([disabled]):hover {
+            color: rgb(0, 188, 212);
+        }
+
+        :host[default-style] a[disabled] {
+            color: rgba(0,0,0,0.3);
+            cursor: default;
+        }
+
+        :host[default-style] a[current] {
+            color: rgb(0, 188, 212);
+        }
+    </style>
+    <template>
+        <template-if if="{{showFirstAndLast}}">
+        <a href="#" disabled_="{{page == 0}}" data-page="0">{{firstText}}</a>
+        </template-if>
+
+        <template-if if="{{showPrevAndNext}}">
+        <a href="#" disabled_="{{page <= 0}}" data-page_="{{page - 1}}">{{prevText}}</a>
+        </template-if>
+
+        <template is="template-repeat" items="{{pageSpanArray}}">
+        <a href="#" disabled_="{{item == page}}" current_="{{item == page}}" data-page_="{{item}}">{{item + 1}}</a>
+        </template>
+
+        <template-if if="{{showPrevAndNext}}">
+        <a href="#" disabled_="{{page >= pageCount - 1}}" data-page_="{{page + 1}}">{{nextText}}</a>
+        </template-if>
+
+        <template-if if="{{showFirstAndLast}}">
+        <a href="#" disabled_="{{page == pageCount - 1}}" data-page_="{{pageCount - 1}}">{{lastText}}</a>
+        </template-if>
+    </template>
+    <script>
+        Nova.Components.NovaPaginator = Nova({
+            is: 'nova-paginator',
+            props: {
+                /* 配置项 */
+                // 总数据条数
+                totalItems: {
+                    type: Number,
+                    value: 0
+                },
+
+                // 每页显示多少条
+                itemsPerPage: {
+                    type: Number,
+                    value: 10
+                },
+
+                // 当前显示第几页，从0算起
+                page: {
+                    type: Number,
+                    value: 0
+                },
+
+                // 组多同时显示多少个页码
+                pageSpan: {
+                    type: Number,
+                    value: 10
+                },
+
+                // 是否显示上一页和下一页
+                showPrevAndNext: {
+                    type: Boolean,
+                    value: true
+                },
+
+                // 是否显示首页和末页
+                showFirstAndLast: {
+                    type: Boolean,
+                    value: false
+                },
+
+                // 是否显示总条数
+                showTotal: {
+                    type: Boolean,
+                    value: false
+                },
+
+                firstText: {
+                    type: String,
+                    value: '首页'
+                },
+
+                lastText: {
+                    type: String,
+                    value: '末页'
+                },
+
+                prevText: {
+                    type: String,
+                    value: '上一页'
+                },
+
+                nextText: {
+                    type: String,
+                    value: '下一页'
+                },
+
+                /* 内部属性 */
+                pageSpanArray: Array,
+                pageCount: Number
+
+            },
+            createdHandler: function() {
+
+                this.initPageCount();
+                this.initPageSpanArray();
+
+                this.on('_totalItemsChanged _itemsPerPageChanged', this.initPageCount);
+                this.on('_pageChanged _pageSpanChanged _totalItemsChanged _itemsPerPageChanged', this.initPageSpanArray);
+                this.bindEvents();
+            },
+
+            bindEvents: function() {
+                var self = this;
+                $(this).on('click', 'a:not([disabled]):not([current])', function() {
+                    var page = $(this).attr('data-page');
+                    self.page = parseInt(page);
+                });
+            },
+
+            initPageCount: function() {
+                this.pageCount = Math.ceil(this.totalItems / this.itemsPerPage);
+            },
+            initPageSpanArray: function() {
+                var radius = (this.pageSpan - 1) / 2;
+                var backwardDistance = Math.ceil(radius);
+                var forwardDistance = Math.floor(radius);
+
+                var backIndex = this.page - backwardDistance;
+                var forwardIndex = this.page + forwardDistance;
+
+                if(backIndex < 0) {
+                    forwardIndex -= backIndex;
+                    backIndex = 0;
+                }
+
+                if(forwardIndex > this.pageCount - 1) {
+                    backIndex -= (forwardIndex - (this.pageCount - 1));
+                    backIndex = backIndex < 0 ? 0 : backIndex;
+                    forwardIndex = this.pageCount - 1;
+                }
+
+                var spanArary = [];
+                for(var i = backIndex; i <= forwardIndex; i++) {
+                    spanArary.push(i);
+                }
+
+                this.pageSpanArray = spanArary;
+            }
+        });
+    </script>
+</template>

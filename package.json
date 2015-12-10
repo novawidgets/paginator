@@ -1,0 +1,19 @@
+{
+  "name": "nova-paginator",
+  "description": "novaui components",
+  "version": "1.0.0",
+  "author": {},
+  "dependencies": {
+    "gulp": "~3.9.0",
+    "gulp-load-plugins": "~1.0.0-rc.1",
+    "gulp-rename": "~1.2.2",
+    "gulp-nova": "~1.0.0",
+    "gulp-watch": "~4.2.4"
+  },
+  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "readmeFilename": "README.md"
+}
